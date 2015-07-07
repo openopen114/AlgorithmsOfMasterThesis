@@ -1,14 +1,8 @@
-
+load("~/Documents/Adobe/Rcodesd/MNIST.RData")
 library(foreach) # parallel for loop
-#library(doMC) # multicore parallel
-library(doSNOW) # multicore parallel
+library(doMC) # multicore parallel
 library(e1071) #for svm
 library(dplyr)
-library(mail)
-
-
-
-sendmail("openopen114@gmail.com", subject = "test on", message = "msg")
 
 #source("~/Documents/Rcode/Rcode/load_mnist.R")
 #source("~/Documents/Rcode/Rcode/CascadeSVMPL.R")
@@ -17,13 +11,10 @@ sendmail("openopen114@gmail.com", subject = "test on", message = "msg")
 
 
 
-#cores <- 2
-#registerDoMC(cores)
 cores <- 4
-cl <- makeCluster(cores, type = "SOCK")
-registerDoSNOW(cl)
-getDoParName()
-getDoParWorkers()
+registerDoMC(cores)
+
+
 
 #convert y to even(-1) odd(1) lable
 convert.y <- 2 * (train$y[1:60000] %% 2) - 1
@@ -46,7 +37,7 @@ acc <- function(M){
     acc
 }
 
-cost.ini <- 10
+cost.ini <- 50
 adjust.sv = T
 
 
@@ -427,11 +418,12 @@ table(as.factor(pred.test.y), as.factor(convert.test.y)) %>%
 t2 <- proc.time() - timer2
 
 test.acc
+t1
+t2
 #save.image(file = "cost50F.RData")
+msg <- paste("t1 = ", t1[[3]],"t2 = ", t2[[3]], "test.acc =", test.acc )
 
-
-subj <- paste("R Azure ",cost.ini, adjust.sv)
-msg <- paste("t1 = ", t1[[3]],"t2 = ", t2[[3]], "test.acc =", test.acc)
-sendmail("openopen114@gmail.com", subject = subj, message = msg)
-
-
+#msg2 <- paste("t1 = 10327.019 ","t2 = 806.862", "test.acc =  0.9126" )
+save(msg,file = "50T.RDATA")
+#library(mail)
+#sendmail("openopen114@gmail.com", "Rdata < C = 10, SV = T  > ", message = msg)
